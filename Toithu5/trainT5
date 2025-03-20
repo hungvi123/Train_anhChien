@@ -1,0 +1,22 @@
+from netmiko import ConnectHandler                              #import hàm ConnectHandler từ thư viện Netmiko
+SW1 = {                                                         #Tạo Dict SW1 bao gồm các thuộc tính như sau
+'device_type':'cisco_ios',                                      #device_type nếu dùng thiết bị Cisco để cisco_ios
+'ip':'10.215.27.130',                                           #ip của SW
+'username':'vnpro',                                             #username là tên truy cập SSH vào Switch
+'password':'vnpro#123',                                         #password là password truy cập SSH vào Switch 
+'secret':'vnpro#321',                                           #secret là enable password của Switch
+}                                                                
+net_connect = ConnectHandler(**SW1)                             #tạo kết nối đến SW1
+net_connect.enable()                                            #tạo kết nối vào mode enable
+for n in range (10,31):                                         #vì n bắt đầu từ 0 nền để tạo vlan 10-30 cần cho chạy từ 10-31
+    print("Creat vlan "+str(n))
+    taoVlan= ['vlan ' + str(n)]                                 #vì n thuộc kiểu int nên cần ép kiểu về kiểu string
+    ipVlan=['int vlan '+str(n),'ip add 172.16.'+str(n)+'.1 255.255.255.0','no shutdown']
+    net_connect.send_config_set(taoVlan)
+    net_connect.send_config_set(ipVlan) 
+
+setintforvlan10 = ['int e0/3', 'swithport mode access', 'switchprot access vlan 10'] #demo set interface cho vlan
+net_connect.send_config_set(setintforvlan10) 
+
+resultintvlan= net_connect.send_command("sh ip int br | i Vlan")
+print(resultintvlan)
